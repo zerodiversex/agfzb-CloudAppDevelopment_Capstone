@@ -10,16 +10,27 @@
     <link href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css" rel="stylesheet">
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-
+    {% load static %}
 </head>
 
     <body>
-    <!-- Remove this line the first time you edit this file -->
-     This is the index page of your Django app!
     <!--Add a nav bar here -->
-
+    <nav>
+        <button>
+            <a href="/djangoapp/about">
+                About us
+            </a>
+        </button>
+    </nav>
     <!--Add a dealer table here -->
 
+    <footer>
+        <button>
+            <a href="/djangoapp/contact">
+                Contact us
+            </a>
+        </button>
+    </footer>
     </body>
 
 </html>
