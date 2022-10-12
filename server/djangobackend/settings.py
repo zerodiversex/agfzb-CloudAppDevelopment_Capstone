@@ -27,7 +27,7 @@ DEBUG = True
 
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["localhost", "qn-final-project.eu-gb.cf"]
+ALLOWED_HOSTS = ["localhost", "qn-final-project.eu-gb.cf.appdomain.cloud"]
 
 
 # Application definition
