@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-from .restapis import get_dealers_from_cf
+from .restapis import post_request, get_dealers_from_cf, get_dealer_reviews_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -100,20 +100,59 @@ def registration_request(request):
 
 
 def get_dealerships(request):
+    context = {}
     if request.method == "GET":
         url = "https://eu-gb.functions.appdomain.cloud/api/v1/web/zerodiversex_zerodiversex/dealerships/get-dealerships.json"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
+        context = dealerships
         # Concat all dealer's short name
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        #dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        return render(request, 'djangoapp/index.html', {"list" : context})
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-# ...
+def get_dealer_details(request, dealer_id):
+    if request.method == "GET":
+        url = "https://eu-gb.functions.appdomain.cloud/api/v1/web/zerodiversex_zerodiversex/dealerships/get-reviews.json"
+        # Get dealers from the URL
+        reviews = get_dealer_reviews_from_cf(url, dealer_id=dealer_id)
+        # Concat all dealer's short name
+        review_names = ' '.join([review.sentiment for review in reviews])
+        # Return a list of dealer short name
+        return HttpResponse(review_names)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    user = request.user
+    if user.is_authenticated:
+        if request.method == "POST":
+            username = request.user.username
+            print(request.POST)
+            payload = dict()
+            car_id = request.POST["car"]
+            payload["time"] = datetime.utcnow().isoformat()
+            payload["name"] = username
+            payload["dealership"] = id
+            payload["id"] = id
+            payload["review"] = request.POST["content"]
+            payload["purchase"] = False
+            if "purchasecheck" in request.POST:
+                if request.POST["purchasecheck"] == 'on':
+                    payload["purchase"] = True
+            payload["purchase_date"] = request.POST["purchasedate"]
+            payload["car_make"] = car.make.name
+            payload["car_model"] = car.name
+            payload["car_year"] = int(car.year)
+
+            new_payload = {}
+            new_payload["review"] = payload
+
+            url = "https://eu-gb.functions.appdomain.cloud/api/v1/web/zerodiversex_zerodiversex/dealerships/post-review.json"
+        
+
+            # Get dealers from the URL
+            reviews = post_request(url, json_payload=new_payload)
+
+            return HttpResponse(reviews)
