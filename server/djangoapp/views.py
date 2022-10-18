@@ -128,6 +128,7 @@ def get_dealer_details(request, dealer_id):
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     user = request.user
+    context = {}
     if user.is_authenticated:
         if request.method == "POST":
             username = request.user.username
