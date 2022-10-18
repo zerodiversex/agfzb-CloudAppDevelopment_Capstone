@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
+from .models import CarModel
 from .restapis import post_request, get_dealers_from_cf, get_dealer_reviews_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -114,14 +114,16 @@ def get_dealerships(request):
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
+    context = {}
     if request.method == "GET":
         url = "https://eu-gb.functions.appdomain.cloud/api/v1/web/zerodiversex_zerodiversex/dealerships/get-reviews.json"
-        # Get dealers from the URL
-        reviews = get_dealer_reviews_from_cf(url, dealer_id=dealer_id)
-        # Concat all dealer's short name
-        review_names = ' '.join([review.sentiment for review in reviews])
-        # Return a list of dealer short name
-        return HttpResponse(review_names)
+        context2={}
+        reviews = get_dealer_reviews_from_cf(url, dealer_id)
+        review_all = ' '.join([review_list.review for review_list in reviews])
+        context = reviews
+        context2["list"]=context
+        context2["dealer_id"]=dealer_id
+        return render(request, 'djangoapp/dealer_details.html', context2)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
@@ -153,6 +155,15 @@ def add_review(request, dealer_id):
         
 
             # Get dealers from the URL
-            reviews = post_request(url, json_payload=new_payload)
-
-            return HttpResponse(reviews)
+            post_request(url, new_payload)
+            return redirect('djangoapp:dealer_details', **{"dealername":dealername, "id":id})
+            
+            #url = "https://3dbc2a14.us-south.apigw.appdomain.cloud/postreview/api/review"
+            #result = post_request(url, json_payload)
+            #return HttpResponse(json_payload)
+        
+        elif request.method == "GET":
+            models = list(CarModel.car_manager.all().filter(dealerid=dealer_id))
+            context["cars"] = models
+            context["dealer_id"] = dealer_id
+            return render(request, 'djangoapp/add_review.html', context)
